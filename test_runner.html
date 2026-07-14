@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIco Buddy - Heuristics Playground & Test Runner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(20, 30, 50, 0.65);
+      --border: 1px solid rgba(255, 255, 255, 0.07);
+      --text: #f1f5f9;
+      --text-muted: #64748b;
+      --rose: #f43f5e;
+      --emerald: #10b981;
+      --blue: #3b82f6;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 750;
+      background: linear-gradient(120deg, #fff, #f43f5e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 8px 0;
+    }
+    p {
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .playground-card {
+      background: var(--card-bg);
+      border: var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      background: rgba(0,0,0,0.25);
+      border: var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus {
+      border-color: var(--rose);
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .result-box {
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    button {
+      background: var(--rose);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .unit-test-results {
+      background: #05070e;
+      border: var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: auto;
+      max-height: 250px;
+    }
+    .pass { color: var(--emerald); }
+    .fail { color: var(--rose); }
+    .info { color: var(--blue); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AIco Buddy Heuristics Playground</h1>
+      <p>실시간 토큰 추정 및 환경 영향 평가 도구</p>
+    </header>
+
+    <div class="playground-card">
+      <div class="row">
+        <label class="label">테스트 프롬프트 입력</label>
+        <textarea id="prompt-input" placeholder="여기에 대화 쿼리를 입력하세요... (예: '자바스크립트 비동기 처리에 대해 알려주세요.')"></textarea>
+      </div>
+      
+      <div class="button-group">
+        <button id="btn-run-tests">로직 단위 테스트 실행</button>
+      </div>
+
+      <div class="results-grid">
+        <!-- Tokens -->
+        <div class="result-box">
+          <span class="label">추정 토큰 (On-device)</span>
+          <span class="value" id="res-tokens" style="color: var(--blue);">0</span>
+          <span class="desc">한국어 가중치(1.8) 및 영어 평균 가중치(1.25) 기반 실시간 토큰 추정값</span>
+        </div>
+
+        <!-- Carbon Footprint -->
+        <div class="result-box">
+          <span class="label">예상 탄소 배출</span>
+          <span class="value" id="res-carbon" style="color: var(--rose);">0.00g</span>
+          <span class="desc" id="res-carbon-desc">Heavy LLM 쿼리 기준: 1회당 전력량과 온실가스 배출량 산정</span>
+        </div>
+
+        <!-- Water Footprint -->
+        <div class="result-box">
+          <span class="label">예상 냉각수 소비</span>
+          <span class="value" id="res-water" style="color: #fbbf24;">0.0mL</span>
+          <span class="desc" id="res-water-desc">서버 열 관리를 위한 데이터 센터의 증발식 냉각수 사용량 환산</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unit Test Output Area -->
+    <div class="playground-card">
+      <h3 style="margin-top: 0; margin-bottom: 12px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">단위 테스트 실행 리포트</h3>
+      <div id="test-output" class="unit-test-results">
+        테스트 실행 버튼을 누르면 내부 토크나이저 및 탄소 측정식 검증이 진행됩니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Extension Utility Modules -->
+  <script src="lib/tokenizer.js"></script>
+  <script src="lib/analyzer.js"></script>
+  
+  <script>
+    const input = document.getElementById('prompt-input');
+    const resTokens = document.getElementById('res-tokens');
+    const resCarbon = document.getElementById('res-carbon');
+    const resCarbonDesc = document.getElementById('res-carbon-desc');
+    const resWater = document.getElementById('res-water');
+    const resWaterDesc = document.getElementById('res-water-desc');
+    
+    const btnRunTests = document.getElementById('btn-run-tests');
+    const testOutput = document.getElementById('test-output');
+
+    // Run analyzer real-time
+    function analyzeText() {
+      const text = input.value;
+      if (!text || text.trim() === '') {
+        resTokens.innerText = '0';
+        resCarbon.innerText = '0.00g';
+        resCarbonDesc.innerText = 'Heavy LLM 쿼리 기준: 1회당 전력량과 온실가스 배출량 산정';
+        resWater.innerText = '0.0mL';
+        resWaterDesc.innerText = '서버 열 관리를 위한 데이터 센터의 증발식 냉각수 사용량 환산';
+        return;
+      }
+
+      // 1. Tokens
+      const tokens = window.AicoTokenizer.countTokens(text);
+      resTokens.innerText = tokens.toLocaleString();
+
+      // 2. Carbon and Water Footprint
+      const footprint = window.AicoAnalyzer.calculateFootprint(tokens, 'llm');
+      resCarbon.innerText = `${footprint.co2G.toFixed(2)}g CO₂`;
+      resCarbonDesc.innerText = `Heavy LLM 쿼리 1회 기준: 약 ${footprint.energyWh.toFixed(3)} Wh 전력 소비 및 탄소 배출.`;
+      
+      resWater.innerText = `${footprint.waterMl.toFixed(1)}mL`;
+      resWaterDesc.innerText = `서버 냉각을 위해 데이터 센터에서 약 ${footprint.waterMl.toFixed(1)} mL의 소중한 물이 소비됩니다.`;
+    }
+
+    input.addEventListener('input', analyzeText);
+
+    // Run programmatic unit tests inside browser console and document
+    btnRunTests.addEventListener('click', () => {
+      testOutput.innerHTML = '';
+      function logTest(msg, type = 'info') {
+        const span = document.createElement('div');
+        span.className = type;
+        if (type === 'pass') span.innerText = '✅ ' + msg;
+        else if (type === 'fail') span.innerText = '❌ ' + msg;
+        else span.innerText = '• ' + msg;
+        testOutput.appendChild(span);
+      }
+
+      try {
+        logTest('단위 테스트 시작...', 'info');
+
+        // Test 1: Tokenizer
+        const testEng = "Hello World! Let's count some English tokens.";
+        const testKor = "안녕하세요 세계! 토큰을 세어봅니다.";
+        const engTokens = window.AicoTokenizer.countTokens(testEng);
+        const korTokens = window.AicoTokenizer.countTokens(testKor);
+
+        logTest(`영어 토큰 테스트: "${testEng}" -> ${engTokens} tokens`, 'info');
+        logTest(`한국어 토큰 테스트: "${testKor}" -> ${korTokens} tokens`, 'info');
+
+        if (engTokens > 0 && korTokens > 0) {
+          logTest('Tokenizer 검증 성공', 'pass');
+        } else {
+          throw new Error('Tokenizer 토큰 계산이 비정상입니다.');
+        }
+
+        // Test 2: Carbon Footprint
+        const ftLLM = window.AicoAnalyzer.calculateFootprint(500, 'llm');
+        const ftSLM = window.AicoAnalyzer.calculateFootprint(500, 'slm');
+
+        logTest(`LLM (500 tokens) -> CO₂: ${ftLLM.co2G}g, Water: ${ftLLM.waterMl}mL`, 'info');
+        logTest(`SLM (500 tokens) -> CO₂: ${ftSLM.co2G}g, Water: ${ftSLM.waterMl}mL`, 'info');
+
+        if (ftLLM.co2G > ftSLM.co2G && ftLLM.waterMl > ftSLM.waterMl) {
+          logTest('Footprint Calculator 검증 성공', 'pass');
+        } else {
+          throw new Error('모델별 탄소 소모 계산 비율이 비정상입니다.');
+        }
+
+        logTest('전체 단위 테스트 성공!', 'pass');
+
+      } catch (err) {
+        logTest(`테스트 실패: ${err.message}`, 'fail');
+      }
+    });
+
+    // Run initial analyze for placeholder text
+    input.value = "안녕하세요! 혹시 파이썬에서 파일 읽는 방법을 알려주실 수 있으신가요?";
+    analyzeText();
+  </script>
+</body>
+</html>

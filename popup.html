@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIco Buddy Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <img src="icons/icon128.png" alt="AIco Buddy Logo" class="header-logo">
+        <div class="brand-info">
+          <h1>AIco Buddy</h1>
+          <span class="status-badge"><span class="pulse-dot"></span>Carbon Tracker</span>
+        </div>
+      </div>
+      <button id="btn-reset" class="icon-button" title="통계 초기화">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+      </button>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-content">
+      <!-- MAIN PANEL (CONSUMED FOOTPRINT) -->
+      <div class="stats-card card-main">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h2>누적 AI 사용 환경 발자국</h2>
+        </div>
+        
+        <div class="metrics-list">
+          <div class="metric-item">
+            <span class="metric-label">총 배출 탄소량</span>
+            <span class="metric-val text-rose"><span id="consumed-co2">0.00</span> <span class="unit">g CO₂</span></span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">총 소비 냉각수</span>
+            <span class="metric-val text-rose"><span id="consumed-water">0.0</span> <span class="unit">mL</span></span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">총 전력 사용량</span>
+            <span class="metric-val text-rose"><span id="consumed-energy">0.00</span> <span class="unit">Wh</span></span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">총 누적 토큰량</span>
+            <span class="metric-val text-sub"><span id="consumed-tokens">0</span> <span class="unit">tokens</span></span>
+          </div>
+        </div>
+
+        <!-- Equivalent Section (Impact Visualization) -->
+        <div class="equivalent-container">
+          <h3>환경 영향 피해 수준 환산</h3>
+          <div class="equiv-grid">
+            <div class="equiv-item">
+              <div class="equiv-icon">🔋</div>
+              <div class="equiv-data">
+                <span id="equiv-phone" class="equiv-val">0.0</span>
+                <span class="equiv-label">스마트폰 완충 횟수</span>
+              </div>
+            </div>
+            <div class="equiv-item">
+              <div class="equiv-icon">💡</div>
+              <div class="equiv-data">
+                <span id="equiv-bulb" class="equiv-val">0.0</span>
+                <span class="equiv-label">LED 전구 작동 (1h)</span>
+              </div>
+            </div>
+            <div class="equiv-item">
+              <div class="equiv-icon">🌳</div>
+              <div class="equiv-data">
+                <span id="equiv-tree" class="equiv-val">0.00</span>
+                <span class="equiv-label">정화 필요한 소나무수</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="total-queries-info">
+          총 AI 질문 횟수: <strong id="total-queries">0</strong>회
+        </div>
+      </div>
+
+      <!-- Recent Log Stream -->
+      <section class="logs-section">
+        <h3>최근 AI 사용 발자국 리포트</h3>
+        <div id="logs-container" class="logs-container">
+          <div class="empty-log">최근 AI 사용 활동이 없습니다. ChatGPT, Gemini, Claude 등에서 질문하여 사용 발자국을 기록해 보세요.</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>AIco Buddy v1.1.0 • AI Carbon Footprint Tracker</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

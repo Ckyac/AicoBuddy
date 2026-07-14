@@ -1,0 +1,47 @@
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r
+._*
+.DocumentRevisions-V100
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.fseventsd
+
+# Chrome Extension Packaged Files
+*.crx
+*.pem
+*.zip
+out/
+dist/
+build/
+
+# Node / NPM (if used)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Editors & IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+.project
+.classpath
+.settings/
+
+# Temp / Local Configs
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.log
